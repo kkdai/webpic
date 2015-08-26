@@ -29,11 +29,6 @@ var targetSiteSetting WebSite
 func init() {
 	file, _ := ioutil.ReadFile("./parser.json")
 	json.Unmarshal(file, &configSetting)
-	// fmt.Println(err)
-	// fmt.Println(configSetting)
-	// fmt.Println("size:", len(configSetting.SupportSites))
-	// fmt.Println("[1]:", configSetting.SupportSites[0])
-	// fmt.Println("[2]:", configSetting.SupportSites[1])
 }
 
 func worker(destDir string, linkChan chan string, wg *sync.WaitGroup) {
@@ -75,13 +70,19 @@ func worker(destDir string, linkChan chan string, wg *sync.WaitGroup) {
 
 func findDomainByURL(url string) WebSite {
 	//using matching first, should goes to regexp
-	if strings.Contains(url, "ck101") {
-		fmt.Println("URL is ck101", configSetting.SupportSites[0])
-		return configSetting.SupportSites[0]
-	} else if strings.Contains(url, "pixnet") {
-		fmt.Println("URL is pixnet", configSetting.SupportSites[1])
-		return configSetting.SupportSites[1]
+	var targetDomain string
+	urlRegex := regexp.MustCompile(`^((http[s]?|ftp):\/)?\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?$`)
+	tokenStrings := urlRegex.FindStringSubmatch(url)
+	if len(tokenStrings) > 0 {
+		targetDomain = tokenStrings[3]
 	}
+
+	for index, webside := range configSetting.SupportSites {
+		if strings.Contains(targetDomain, webside.WebSite) {
+			return configSetting.SupportSites[index]
+		}
+	}
+
 	return configSetting.SupportSites[0]
 }
 
@@ -94,6 +95,7 @@ func crawler(target string, workerNum int) {
 	//find web site from URL.
 	targetSiteSetting := findDomainByURL(target)
 	title := doc.Find(targetSiteSetting.TitlePattern).Text()
+	fmt.Println("[", targetSiteSetting.WebSite, "]:", title, " starting downloading...")
 
 	dir := fmt.Sprintf("%v/%v - %v", baseDir, targetSiteSetting.WebSite, title)
 
