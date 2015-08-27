@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"image"
@@ -14,6 +15,9 @@ import (
 	"strings"
 	"sync"
 
+	"code.google.com/p/go.text/encoding/traditionalchinese"
+	"code.google.com/p/go.text/transform"
+
 	"github.com/PuerkitoBio/goquery"
 	"github.com/spf13/cobra"
 )
@@ -26,32 +30,38 @@ var (
 var configSetting Parser
 var targetSiteSetting WebSite
 
-func init() {
-	file, _ := ioutil.ReadFile("./parser.json")
-	json.Unmarshal(file, &configSetting)
-}
-
 func worker(destDir string, linkChan chan string, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	for target := range linkChan {
+		imgInfo := imageId.FindStringSubmatch(target)
+		if len(imgInfo) > 0 && strings.EqualFold(imgInfo[2], "gif") {
+			//GIF not support for now, skip
+			continue
+		}
+
+		if strings.Contains(target, ".gif") {
+			//GIF not support for now, skip
+			continue
+		}
+
 		resp, err := http.Get(target)
 		if err != nil {
-			fmt.Printf("Http.Get\nerror: %s\ntarget: %s", err, target)
+			fmt.Printf("Http.Get\nerror: %s\ntarget: %s\n", err, target)
 			continue
 		}
 		defer resp.Body.Close()
 
 		m, _, err := image.Decode(resp.Body)
 		if err != nil {
-			fmt.Printf("image.Decode\nerror: %s\ntarget: %s", err, target)
+			fmt.Printf("image.Decode\nerror: %s\ntarget: %s\n", err, target)
 			continue
 		}
 
 		// Ignore small images
 		bounds := m.Bounds()
 		if bounds.Size().X > 300 && bounds.Size().Y > 300 {
-			imgInfo := imageId.FindStringSubmatch(target)
+			// imgInfo := imageId.FindStringSubmatch(target)
 			out, err := os.Create(destDir + "/" + imgInfo[1] + "." + imgInfo[2])
 			if err != nil {
 				fmt.Printf("os.Create\nerror: %s", err)
@@ -66,6 +76,21 @@ func worker(destDir string, linkChan chan string, wg *sync.WaitGroup) {
 			}
 		}
 	}
+}
+
+func BigDecodeUTF8(s []byte) ([]byte, error) {
+	I := bytes.NewReader(s)
+	O := transform.NewReader(I, traditionalchinese.Big5.NewDecoder())
+	d, e := ioutil.ReadAll(O)
+	if e != nil {
+		return nil, e
+	}
+	return d, nil
+}
+
+func findCharacterSet(targetUrl string) string {
+	resp, _ := http.Get(targetUrl)
+	return resp.Header.Get("Content-Type")
 }
 
 func findDomainByURL(url string) WebSite {
@@ -83,6 +108,7 @@ func findDomainByURL(url string) WebSite {
 		}
 	}
 
+	//Cannot find using first as default parser.
 	return configSetting.SupportSites[0]
 }
 
@@ -95,6 +121,12 @@ func crawler(target string, workerNum int) {
 	//find web site from URL.
 	targetSiteSetting := findDomainByURL(target)
 	title := doc.Find(targetSiteSetting.TitlePattern).Text()
+
+	if targetSiteSetting.ForceBig5 {
+		byteStr, _ := BigDecodeUTF8([]byte(title))
+		title = string(byteStr)
+	}
+
 	fmt.Println("[", targetSiteSetting.WebSite, "]:", title, " starting downloading...")
 
 	dir := fmt.Sprintf("%v/%v - %v", baseDir, targetSiteSetting.WebSite, title)
@@ -120,6 +152,15 @@ func crawler(target string, workerNum int) {
 func main() {
 	usr, _ := user.Current()
 	baseDir = fmt.Sprintf("%v/Pictures/ilovedlimg", usr.HomeDir)
+
+	//Load parser if exist.
+	file, _ := ioutil.ReadFile("./parser.json")
+	if len(file) == 0 {
+		//file not exist, download new one.
+		fmt.Println("Parse file not exist, download latest one from server.")
+
+	}
+	json.Unmarshal(file, &configSetting)
 
 	var postUrl string
 	var workerNum int
