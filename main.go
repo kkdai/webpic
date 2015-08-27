@@ -14,17 +14,20 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+	"time"
 
 	"code.google.com/p/go.text/encoding/traditionalchinese"
 	"code.google.com/p/go.text/transform"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/atotto/clipboard"
 	"github.com/spf13/cobra"
 )
 
 var (
-	baseDir string
-	imageId = regexp.MustCompile(`([^\/]+)\.(png|jpg)`)
+	baseDir  string
+	imageId  = regexp.MustCompile(`([^\/]+)\.(png|jpg)`)
+	urlRegex = regexp.MustCompile(`^((http[s]?|ftp):\/)?\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?$`)
 )
 
 var configSetting Parser
@@ -96,7 +99,6 @@ func findCharacterSet(targetUrl string) string {
 func findDomainByURL(url string) WebSite {
 	//using matching first, should goes to regexp
 	var targetDomain string
-	urlRegex := regexp.MustCompile(`^((http[s]?|ftp):\/)?\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?$`)
 	tokenStrings := urlRegex.FindStringSubmatch(url)
 	if len(tokenStrings) > 0 {
 		targetDomain = tokenStrings[3]
@@ -164,15 +166,39 @@ func main() {
 
 	var postUrl string
 	var workerNum int
+	var useDaemon bool
 
 	rootCmd := &cobra.Command{
 		Use:   "ilovedlimg",
 		Short: "Download all the images in given post url",
 		Run: func(cmd *cobra.Command, args []string) {
-			crawler(postUrl, workerNum)
+			if useDaemon {
+				//Check clipboard
+				var previousString string
+				fmt.Println("Start watching clipboard.... (press ctrl+c to exit)")
+				for {
+					text, err := clipboard.ReadAll()
+					if previousString != text {
+						if err == nil && len(text) > 0 {
+							// fmt.Println("Get ", text)
+							urlInfo := urlRegex.FindStringSubmatch(text)
+							if len(urlInfo) > 0 {
+								// fmt.Println("It is url, start parse it.")
+								go crawler(text, workerNum)
+							}
+						}
+						previousString = text
+					}
+
+					time.Sleep(time.Second)
+				}
+			} else {
+				crawler(postUrl, workerNum)
+			}
 		},
 	}
 	rootCmd.Flags().StringVarP(&postUrl, "url", "u", "http://ck101.com/thread-2876990-1-1.html", "Url of post")
 	rootCmd.Flags().IntVarP(&workerNum, "worker", "w", 25, "Number of workers")
+	rootCmd.Flags().BoolVarP(&useDaemon, "daemon", "d", false, "Enable daemon mode to watch the clipboard.")
 	rootCmd.Execute()
 }
