@@ -96,7 +96,7 @@ func findCharacterSet(targetUrl string) string {
 	return resp.Header.Get("Content-Type")
 }
 
-func findDomainByURL(url string) WebSite {
+func findDomainByURL(url string) *WebSite {
 	//using matching first, should goes to regexp
 	var targetDomain string
 	tokenStrings := urlRegex.FindStringSubmatch(url)
@@ -108,13 +108,13 @@ func findDomainByURL(url string) WebSite {
 		// fmt.Println("[", index, "]targetDM:", targetDomain, " web:", webside.WebSite)
 		if strings.Contains(targetDomain, webside.WebSite) {
 			fmt.Println("Use", configSetting.SupportSites[index].WebSite, " parser.")
-			return configSetting.SupportSites[index]
+			return &configSetting.SupportSites[index]
 		}
 	}
 
 	//Cannot find using first as default parser.
-	fmt.Println("Use default parser.")
-	return configSetting.SupportSites[0]
+	fmt.Println("Not in our support list, skip.")
+	return nil
 }
 
 func crawler(target string, workerNum int) {
@@ -125,6 +125,10 @@ func crawler(target string, workerNum int) {
 
 	//find web site from URL.
 	targetSiteSetting := findDomainByURL(target)
+	if targetSiteSetting == nil {
+		return
+	}
+
 	title := doc.Find(targetSiteSetting.TitlePattern).Text()
 
 	if targetSiteSetting.ForceBig5 {
@@ -156,14 +160,17 @@ func crawler(target string, workerNum int) {
 
 func main() {
 	usr, _ := user.Current()
-	baseDir = fmt.Sprintf("%v/Pictures/ilovedlimg", usr.HomeDir)
+	baseDir = fmt.Sprintf("%v/Pictures/webpic", usr.HomeDir)
 
 	//Load parser if exist.
-	file, _ := ioutil.ReadFile("./parser.json")
+	// file, _ := ioutil.ReadFile("./parser.json")
+	var file []byte
 	// fmt.Println(string(file))
 	if len(file) == 0 {
 		//file not exist, download new one.
-		fmt.Println("Parse file not exist, download latest one from server.")
+		//fmt.Println("Parse file not exist, download latest one from server.")
+		//fmt.Println("Load default json")
+		file = DefaultJson
 	}
 	json.Unmarshal(file, &configSetting)
 	//fmt.Println("config:", configSetting)
@@ -173,7 +180,7 @@ func main() {
 	var useDaemon bool
 
 	rootCmd := &cobra.Command{
-		Use:   "ilovedlimg",
+		Use:   "webpic",
 		Short: "Download all the images in given post url",
 		Run: func(cmd *cobra.Command, args []string) {
 			if useDaemon {
