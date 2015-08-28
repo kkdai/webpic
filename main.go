@@ -200,6 +200,7 @@ func updateParser(jsonAddr string) {
 func main() {
 	usr, _ := user.Current()
 	baseDir = fmt.Sprintf("%v/Pictures/webpic", usr.HomeDir)
+	os.MkdirAll(baseDir, 0755)
 	jsonFileAddr := fmt.Sprintf("%s/parser.json", baseDir)
 
 	reloadParser(jsonFileAddr)
