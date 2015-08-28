@@ -7,6 +7,7 @@ import (
 	"image"
 	"image/jpeg"
 	"image/png"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -25,9 +26,10 @@ import (
 )
 
 var (
-	baseDir  string
-	imageId  = regexp.MustCompile(`([^\/]+)\.(png|jpg)`)
-	urlRegex = regexp.MustCompile(`^((http[s]?|ftp):\/)?\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?$`)
+	baseDir        string
+	imageId        = regexp.MustCompile(`([^\/]+)\.(png|jpg)`)
+	urlRegex       = regexp.MustCompile(`^((http[s]?|ftp):\/)?\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?$`)
+	jsonFileGithub = "https://raw.githubusercontent.com/kkdai/webpic/master/parser.json"
 )
 
 var configSetting Parser
@@ -158,22 +160,56 @@ func crawler(target string, workerNum int) {
 	wg.Wait()
 }
 
-func main() {
-	usr, _ := user.Current()
-	baseDir = fmt.Sprintf("%v/Pictures/webpic", usr.HomeDir)
+func checkFileExist(fileAdd string) bool {
+	if _, err := os.Stat(fileAdd); err == nil {
+		return true
+	}
+	return false
+}
 
+func reloadParser(jsonFileAddr string) {
 	//Load parser if exist.
-	// file, _ := ioutil.ReadFile("./parser.json")
 	var file []byte
-	// fmt.Println(string(file))
+
+	if checkFileExist(jsonFileAddr) {
+		file, _ = ioutil.ReadFile(jsonFileAddr)
+		fmt.Println("Trying load local parser file")
+	} else {
+		//Download latest one from github.
+		updateParser(jsonFileAddr)
+		file, _ = ioutil.ReadFile(jsonFileAddr)
+		fmt.Println("Trying load local parser file")
+	}
+
 	if len(file) == 0 {
 		//file not exist, download new one.
-		//fmt.Println("Parse file not exist, download latest one from server.")
-		//fmt.Println("Load default json")
+		fmt.Println("Local parser is empty, load default parser in app.")
 		file = DefaultJson
 	}
 	json.Unmarshal(file, &configSetting)
-	//fmt.Println("config:", configSetting)
+}
+
+func updateParser(jsonAddr string) {
+	fmt.Println("Download new parser from github and update.")
+	out, err := os.Create(jsonAddr)
+	if err != nil {
+		return
+	}
+	defer out.Close()
+	resp, err := http.Get(jsonFileGithub)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+	_, err = io.Copy(out, resp.Body)
+}
+
+func main() {
+	usr, _ := user.Current()
+	baseDir = fmt.Sprintf("%v/Pictures/webpic", usr.HomeDir)
+	jsonFileAddr := fmt.Sprintf("%s/parser.json", baseDir)
+
+	reloadParser(jsonFileAddr)
 
 	var postUrl string
 	var workerNum int
@@ -211,5 +247,15 @@ func main() {
 	rootCmd.Flags().StringVarP(&postUrl, "url", "u", "http://ck101.com/thread-2876990-1-1.html", "Url of post")
 	rootCmd.Flags().IntVarP(&workerNum, "worker", "w", 25, "Number of workers")
 	rootCmd.Flags().BoolVarP(&useDaemon, "daemon", "d", false, "Enable daemon mode to watch the clipboard.")
+
+	updateCmd := &cobra.Command{
+		Use:   "update",
+		Short: "Download new parser from github and update local.",
+		Run: func(cmd *cobra.Command, args []string) {
+			updateParser(jsonFileAddr)
+		},
+	}
+
+	rootCmd.AddCommand(updateCmd)
 	rootCmd.Execute()
 }

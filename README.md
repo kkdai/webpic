@@ -2,21 +2,40 @@ webpic: [網頁圖片小幫手] Download all images from web site.
 ======================
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/kkdai/webpic/master/LICENSE) [![Build Status](https://travis-ci.org/kkdai/webpic.svg)](https://travis-ci.org/kkdai/iloveptt)
 
+中文說明: (Chinese Description)
+--------------
+
+[網頁圖片小幫手] 是一個可以幫你抓取所有網頁上所有圖片的． 這個小幫手主要有以下功能：
+
+- 下載網頁圖片: 自動下載所有網頁上的圖片到個人圖片資料夾．
+- 背景剪貼簿監控: 可以自動查看系統剪貼簿，發現有相關網址則會自動下載．
+- 自動更新解析引擎: 不需要重新更新程式，只要下一個指令就可以更新解析引擎．
+
+
+Description
+--------------
+
 [WebPic]: A website image downloader to parse whole content on website and download and store all images.
 
-### Features
+### Features:
 
 It shpport following features.
+
+#### Download all images from specific web URL
+
+WebPic can download all images automatically and store in your PIC directory.
 
 #### Daemon mode to monitor clipboard and download automatically.
 
 WebPic support daemon mode as option in `-d`, it will monitor your clipboard.
 
-#### [TODO] Update parser file without rebuild binary. 
+#### Update parser file without rebuild binary. 
 
-WebPic support you to update your parser setting directly without rebuild this application.
+WebPic support you to update your parser setting directly without rebuild this application. Please use command `webpic update` to update your parser directly without rebuild process.
 
-Install
+
+
+How to Install
 --------------
 
     go get -u -x github.com/kkdai/webpic
@@ -24,7 +43,7 @@ Install
 Usage
 ---------------------
 
-    webpic  
+    webpic -u URL
 
 All the photos will download to `USERS/Pictures/iloveptt` and it will separate folder by article name.
 
@@ -37,6 +56,7 @@ Options
 - `-w` number of workers. (concurrency), default workers is "25"
 - `-u` input URL to download directly.
 - `-d` Daemon mode.
+- `update` Update parser file to latest one from Github.
 
 Examples
 ---------------
@@ -52,6 +72,11 @@ Download all photos from Scottie Pippen facebook pages with 10 workers.
         //Enable daemon mode 
         webpic -d
         >> Start watching clipboard.... (press ctrl+c to exit)
+        
+        //Update parser 
+        webpic update
+        >> Trying load local parser file
+        >> Download new parser from github and update.
             
 
 Known Issues on Go 1.4.2
