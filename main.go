@@ -40,12 +40,7 @@ func worker(destDir string, linkChan chan string, wg *sync.WaitGroup) {
 
 	for target := range linkChan {
 		imgInfo := imageId.FindStringSubmatch(target)
-		if len(imgInfo) > 0 && strings.EqualFold(imgInfo[2], "gif") {
-			//GIF not support for now, skip
-			continue
-		}
-
-		if strings.Contains(target, ".gif") {
+		if (len(imgInfo) > 0 && strings.EqualFold(imgInfo[2], "gif")) || strings.Contains(target, ".gif") {
 			//GIF not support for now, skip
 			continue
 		}
@@ -66,7 +61,6 @@ func worker(destDir string, linkChan chan string, wg *sync.WaitGroup) {
 		// Ignore small images
 		bounds := m.Bounds()
 		if bounds.Size().X > 300 && bounds.Size().Y > 300 {
-			// imgInfo := imageId.FindStringSubmatch(target)
 			out, err := os.Create(destDir + "/" + imgInfo[1] + "." + imgInfo[2])
 			if err != nil {
 				fmt.Printf("os.Create\nerror: %s", err)
@@ -107,7 +101,6 @@ func findDomainByURL(url string) *WebSite {
 	}
 
 	for index, webside := range configSetting.SupportSites {
-		// fmt.Println("[", index, "]targetDM:", targetDomain, " web:", webside.WebSite)
 		if strings.Contains(targetDomain, webside.WebSite) {
 			fmt.Println("Use", configSetting.SupportSites[index].WebSite, " parser.")
 			return &configSetting.SupportSites[index]
@@ -226,11 +219,10 @@ func main() {
 				for {
 					text, err := clipboard.ReadAll()
 					if previousString != text {
+						//Found something new in clipboard, check if it is URL.
 						if err == nil && len(text) > 0 {
-							// fmt.Println("Get ", text)
 							urlInfo := urlRegex.FindStringSubmatch(text)
 							if len(urlInfo) > 0 {
-								// fmt.Println("It is url, start parse it.")
 								go crawler(text, workerNum)
 							}
 						}
