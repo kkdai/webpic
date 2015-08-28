@@ -1,11 +1,11 @@
-webpic: [網頁圖片小幫手] Download all images from web site.
+webpic: [網頁抓圖小幫手] Download all images from web site.
 ======================
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/kkdai/webpic/master/LICENSE) [![Build Status](https://travis-ci.org/kkdai/webpic.svg)](https://travis-ci.org/kkdai/iloveptt)
 
 中文說明: (Chinese Description)
 --------------
 
-[網頁圖片小幫手] 是一個可以幫你抓取所有網頁上所有圖片的． 這個小幫手主要有以下功能：
+[網頁抓圖小幫手] 是一個可以幫你抓取所有網頁上所有圖片的． 這個小幫手主要有以下功能：
 
 - 下載網頁圖片: 自動下載所有網頁上的圖片到個人圖片資料夾．
 - 背景剪貼簿監控: 可以自動查看系統剪貼簿，發現有相關網址則會自動下載．
