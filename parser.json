@@ -19,6 +19,12 @@
 			"img_pattern" : ".bodycontent img",
 			"img_attr_pattern": "src",
 			"forceBig5" : true
-		}		
+		},
+		{
+			"web_site": "gigacircle.com",
+			"title_pattern": "title",
+			"img_pattern" : ".usercontent p img",
+			"img_attr_pattern": "src"
+		}
 	]
 }

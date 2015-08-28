@@ -105,12 +105,15 @@ func findDomainByURL(url string) WebSite {
 	}
 
 	for index, webside := range configSetting.SupportSites {
+		// fmt.Println("[", index, "]targetDM:", targetDomain, " web:", webside.WebSite)
 		if strings.Contains(targetDomain, webside.WebSite) {
+			fmt.Println("Use", configSetting.SupportSites[index].WebSite, " parser.")
 			return configSetting.SupportSites[index]
 		}
 	}
 
 	//Cannot find using first as default parser.
+	fmt.Println("Use default parser.")
 	return configSetting.SupportSites[0]
 }
 
@@ -157,12 +160,13 @@ func main() {
 
 	//Load parser if exist.
 	file, _ := ioutil.ReadFile("./parser.json")
+	// fmt.Println(string(file))
 	if len(file) == 0 {
 		//file not exist, download new one.
 		fmt.Println("Parse file not exist, download latest one from server.")
-
 	}
 	json.Unmarshal(file, &configSetting)
+	//fmt.Println("config:", configSetting)
 
 	var postUrl string
 	var workerNum int
