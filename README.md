@@ -79,6 +79,18 @@ Download all photos from Scottie Pippen facebook pages with 10 workers.
         >> Download new parser from github and update.
             
 
+Support Websites
+---------------
+
+Currently WebPic support following website, welcome to file your request in issue, or submit your PR.
+
+- [卡提諾](http://ck101.com/)
+- [提姆家族](http://www.timliao.com/bbs/)
+- [GigaCircle](gigacircle.com)
+- [痞客邦](pixnet.net)
+
+Please check our latest update [parser file](https://raw.githubusercontent.com/kkdai/webpic/master/parser.json) for more detail.
+
 Known Issues on Go 1.4.2
 ---------------
 
