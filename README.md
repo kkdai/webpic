@@ -11,6 +11,7 @@ webpic: [網頁圖片小幫手] Download all images from web site.
 - 背景剪貼簿監控: 可以自動查看系統剪貼簿，發現有相關網址則會自動下載．
 - 自動更新解析引擎: 不需要重新更新程式，只要下一個指令就可以更新解析引擎．
 
+歡迎各位幫助提供更多的解析方式在我們的[Parser.json設定](https://raw.githubusercontent.com/kkdai/webpic/master/parser.json)．
 
 Description
 --------------
@@ -55,8 +56,8 @@ Examples
 
 Download all photos from Scottie Pippen facebook pages with 10 workers.
 
-        //Run app to download url=http://ck101.com/thread-2876990-1-1.html
-        webpic -u http://ck101.com/thread-2876990-1-1.html
+        //Run app to download url=http://ck101.com/thread-3282616-1-1.html
+        webpic -u http://ck101.com/thread-3282616-1-1.html
         
         //Download image with URL with 10 running thread.
         webpic -u http://ck101.com/thread-2876990-1-1.html -w 10
@@ -78,8 +79,8 @@ Currently WebPic support following website, welcome to file your request in issu
 
 - [卡提諾](http://ck101.com/)
 - [提姆家族](http://www.timliao.com/bbs/)
-- [GigaCircle](gigacircle.com)
-- [痞客邦](pixnet.net)
+- [GigaCircle](http://gigacircle.com)
+- [痞客邦](http://pixnet.net)
 
 Please check our latest update [parser file](https://raw.githubusercontent.com/kkdai/webpic/master/parser.json) for more detail.
 

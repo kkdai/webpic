@@ -232,11 +232,15 @@ func main() {
 					time.Sleep(time.Second)
 				}
 			} else {
+				if postUrl == "" {
+					fmt.Println("Please use 'webpic -u URL'.")
+					return
+				}
 				crawler(postUrl, workerNum)
 			}
 		},
 	}
-	rootCmd.Flags().StringVarP(&postUrl, "url", "u", "http://ck101.com/thread-2876990-1-1.html", "Url of post")
+	rootCmd.Flags().StringVarP(&postUrl, "url", "u", "", "Url of post")
 	rootCmd.Flags().IntVarP(&workerNum, "worker", "w", 25, "Number of workers")
 	rootCmd.Flags().BoolVarP(&useDaemon, "daemon", "d", false, "Enable daemon mode to watch the clipboard.")
 
