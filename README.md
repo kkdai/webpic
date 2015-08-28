@@ -17,22 +17,14 @@ Description
 
 [WebPic]: A website image downloader to parse whole content on website and download and store all images.
 
-### Features:
-
 It shpport following features.
 
-#### Download all images from specific web URL
-
-WebPic can download all images automatically and store in your PIC directory.
-
-#### Daemon mode to monitor clipboard and download automatically.
-
-WebPic support daemon mode as option in `-d`, it will monitor your clipboard.
-
-#### Update parser file without rebuild binary. 
-
-WebPic support you to update your parser setting directly without rebuild this application. Please use command `webpic update` to update your parser directly without rebuild process.
-
+- Download all images from specific web URL
+    - WebPic can download all images automatically and store in your PIC directory.
+- Daemon mode to monitor clipboard and download automatically.
+    - WebPic support daemon mode as option in `-d`, it will monitor your clipboard.
+- Update parser file without rebuild binary. 
+    - WebPic support you to update your parser setting directly without rebuild this application. Please use command `webpic update` to update your parser directly without rebuild process.
 
 
 How to Install
