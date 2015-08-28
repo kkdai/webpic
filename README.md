@@ -1,9 +1,8 @@
-webpic: Download all images from web site.
+webpic: [網頁圖片小幫手] Download all images from web site.
 ======================
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/kkdai/webpic/master/LICENSE) [![Build Status](https://travis-ci.org/kkdai/webpic.svg)](https://travis-ci.org/kkdai/iloveptt)
 
-
-A website image downloader to parse whole content on website and download and store all images.
+[WebPic]: A website image downloader to parse whole content on website and download and store all images.
 
 ### Features
 
