@@ -56,6 +56,7 @@ Examples
 
 Download all photos from Scottie Pippen facebook pages with 10 workers.
 
+```shell
         //Run app to download url=http://ck101.com/thread-3282616-1-1.html
         webpic -u http://ck101.com/thread-3282616-1-1.html
         
@@ -71,6 +72,7 @@ Download all photos from Scottie Pippen facebook pages with 10 workers.
         >> Trying load local parser file
         >> Download new parser from github and update.
             
+```
 
 Support Websites
 ---------------
